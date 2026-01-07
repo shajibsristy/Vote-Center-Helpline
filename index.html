@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Directory - Bangladesh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .search-box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: #667eea;
+        }
+        
+        .filter-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            font-size: 1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .results-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .result-count {
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .school-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .school-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .school-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .school-info {
+            display: grid;
+            gap: 8px;
+            color: #555;
+        }
+        
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: #667eea;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
+        .phone-link {
+            color: #28a745;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .phone-link:hover {
+            text-decoration: underline;
+        }
+        
+        .hotline-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        
+        .hotline-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .school-card {
+                padding: 15px;
+            }
+            
+            .info-label {
+                min-width: 100px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏫 Help Center</h1>
+            <p>Search helpline contact by union, center, contact person, location, or contact number</p>
+        </div>
+        
+        <div class="search-box">
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search by union, or contact person..."
+                >
+            </div>
+            
+            <div class="filter-section">
+                <select id="upazilaFilter" class="filter-select">
+                    <option value="">All Upazila</option>
+                </select>
+                <select id="unionFilter" class="filter-select">
+                    <option value="">All Union</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="results-container">
+            <div class="results-header">
+                <div class="result-count" id="resultCount">Loading data...</div>
+            </div>
+            <div id="results" class="loading">
+                <p>Loading school data...</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">Please make sure your Google Sheet is published and the URL is set correctly.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IMPORTANT: Replace this URL with your actual Google Sheet published CSV URL
+        // Instructions:
+        // 1. In your Google Sheet, go to File → Share → Publish to web
+        // 2. Choose "Comma-separated values (.csv)" and publish
+        // 3. Copy the URL and paste it below
+        const SHEET_CSV_URL = 'https://tinyurl.com/voter-help-center';
+        
+        let allSchools = [];
+        let filteredSchools = [];
+
+        // Fetch and parse CSV data
+        async function loadData() {
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const rows = csvText.split('\n').map(row => {
+                    const values = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let char of row) {
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            values.push(current.trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    values.push(current.trim());
+                    return values;
+                });
+                
+                // Assuming first row is headers
+                const headers = rows[0];
+                allSchools = rows.slice(1)
+                    .filter(row => row.some(cell => cell.trim() !== ''))
+                    .map(row => {
+                        const school = {};
+                        headers.forEach((header, index) => {
+                            school[header.toLowerCase().trim()] = row[index] || '';
+                        });
+                        return school;
+                    });
+                
+                populateFilters();
+                filteredSchools = [...allSchools];
+                displayResults();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('results').innerHTML = `
+                    <div class="no-results">
+                        <p style="color: #dc3545; font-weight: bold;">Error loading data</p>
+                        <p style="margin-top: 10px;">Please check:</p>
+                        <ul style="text-align: left; margin: 15px auto; max-width: 400px;">
+                            <li>Your Google Sheet is published to web as CSV</li>
+                            <li>The CSV URL is correctly set in the code</li>
+                            <li>Your internet connection is working</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const upazilas = [...new Set(allSchools.map(s => s.upazila || s.district).filter(Boolean))].sort();
+            const unions = [...new Set(allSchools.map(s => s.union).filter(Boolean))].sort();
+            
+            const upazilaSelect = document.getElementById('upazilaFilter');
+            const unionSelect = document.getElementById('unionFilter');
+            
+            upazilas.forEach(upazila => {
+                const option = document.createElement('option');
+                option.value = upazila;
+                option.textContent = upazila;
+                upazilaSelect.appendChild(option);
+            });
+            
+            unions.forEach(union => {
+                const option = document.createElement('option');
+                option.value = union;
+                option.textContent = union;
+                unionSelect.appendChild(option);
+            });
+        }
+
+        // Filter and search
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedUpazila = document.getElementById('upazilaFilter').value;
+            const selectedUnion = document.getElementById('unionFilter').value;
+            
+            filteredSchools = allSchools.filter(school => {
+                const matchesSearch = !searchTerm || Object.values(school).some(value => 
+                    value.toLowerCase().includes(searchTerm)
+                );
+                
+                const matchesUpazila = !selectedUpazila || 
+                    (school.upazila || school.district || '').toLowerCase() === selectedUpazila.toLowerCase();
+                
+                const matchesUnion = !selectedUnion || 
+                    (school.union || '').toLowerCase() === selectedUnion.toLowerCase();
+                
+                return matchesSearch && matchesUpazila && matchesUnion;
+            });
+            
+            displayResults();
+        }
+
+        // Display results
+        function displayResults() {
+            const resultsDiv = document.getElementById('results');
+            const countDiv = document.getElementById('resultCount');
+            
+            countDiv.textContent = `Found ${filteredSchools.length} school${filteredSchools.length !== 1 ? 's' : ''}`;
+            
+            if (filteredSchools.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-results"><p>No schools found. Try different search terms.</p></div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = filteredSchools.map(school => {
+                const schoolName = school.school || school['school name'] || 'N/A';
+                const upazila = school.upazila || school.district || 'N/A';
+                const union = school.union || 'N/A';
+                const contact = school.contact || school['contact person'] || 'N/A';
+                const mobile = school.mobile || school.phone || school['mobile number'] || 'N/A';
+                const hotline = school.hotline || school['hotline number'] || '';
+                
+                return `
+                    <div class="school-card">
+                        <div class="school-name">${schoolName}</div>
+                        <div class="school-info">
+                            <div class="info-row">
+                                <span class="info-label">Upazila:</span>
+                                <span class="info-value">${upazila}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Union:</span>
+                                <span class="info-value">${union}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Contact Person:</span>
+                                <span class="info-value">${contact}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Mobile:</span>
+                                <span class="info-value">
+                                    <a href="tel:${mobile}" class="phone-link">${mobile}</a>
+                                </span>
+                            </div>
+                            ${hotline ? `
+                                <div class="hotline-section">
+                                    <div class="hotline-title">📞 Hotline Number</div>
+                                    <a href="tel:${hotline}" class="phone-link">${hotline}</a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', performSearch);
+        document.getElementById('upazilaFilter').addEventListener('change', performSearch);
+        document.getElementById('unionFilter').addEventListener('change', performSearch);
+
+        // Load data on page load
+        loadData();
+    </script>
+</body>
+</html>
