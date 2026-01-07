@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Directory - Bangladesh</title>
+    <title>Help Center Directory - Bangladesh</title>
     <style>
         * {
             margin: 0;
@@ -48,8 +48,25 @@
             margin-bottom: 30px;
         }
         
+        .filter-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            font-size: 1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+        
         .search-input-wrapper {
-            position: relative;
+            margin-bottom: 15px;
         }
         
         .search-input {
@@ -64,23 +81,6 @@
         
         .search-input:focus {
             border-color: #667eea;
-        }
-        
-        .filter-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .filter-select {
-            padding: 10px 15px;
-            font-size: 1em;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            outline: none;
         }
         
         .results-container {
@@ -105,7 +105,7 @@
             font-weight: bold;
         }
         
-        .school-card {
+        .center-card {
             background: #f8f9fa;
             border-left: 4px solid #667eea;
             padding: 20px;
@@ -114,19 +114,19 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        .school-card:hover {
+        .center-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
-        .school-name {
+        .center-name {
             font-size: 1.3em;
             font-weight: bold;
             color: #333;
             margin-bottom: 10px;
         }
         
-        .school-info {
+        .center-info {
             display: grid;
             gap: 8px;
             color: #555;
@@ -139,7 +139,7 @@
         
         .info-label {
             font-weight: 600;
-            min-width: 120px;
+            min-width: 140px;
             color: #667eea;
         }
         
@@ -168,7 +168,11 @@
         .hotline-title {
             font-weight: bold;
             color: #856404;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .hotline-item {
+            margin: 5px 0;
         }
         
         .no-results {
@@ -189,7 +193,7 @@
                 font-size: 1.8em;
             }
             
-            .school-card {
+            .center-card {
                 padding: 15px;
             }
             
@@ -203,20 +207,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏫 Help Center</h1>
-            <p>Search helpline contact by union, center, contact person, location, or contact number</p>
+            <h1>🏫 Help Center Directory</h1>
+            <p>Search helpline contacts by location, center, person, or role</p>
         </div>
         
         <div class="search-box">
-            <div class="search-input-wrapper">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input" 
-                    placeholder="Search by union, or contact person..."
-                >
-            </div>
-            
             <div class="filter-section">
                 <select id="upazilaFilter" class="filter-select">
                     <option value="">All Upazila</option>
@@ -224,6 +219,27 @@
                 <select id="unionFilter" class="filter-select">
                     <option value="">All Union</option>
                 </select>
+                <select id="wardFilter" class="filter-select">
+                    <option value="">All Ward</option>
+                </select>
+            </div>
+            
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    id="centerSearch" 
+                    class="search-input" 
+                    placeholder="🔍 Search by Center Name..."
+                >
+            </div>
+            
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    id="personSearch" 
+                    class="search-input" 
+                    placeholder="🔍 Search by Person Name, Role, or Contact Number..."
+                >
             </div>
         </div>
         
@@ -232,7 +248,7 @@
                 <div class="result-count" id="resultCount">Loading data...</div>
             </div>
             <div id="results" class="loading">
-                <p>Loading school data...</p>
+                <p>Loading center data...</p>
                 <p style="margin-top: 10px; font-size: 0.9em;">Please make sure your Google Sheet is published and the URL is set correctly.</p>
             </div>
         </div>
@@ -246,8 +262,8 @@
         // 3. Copy the URL and paste it below
         const SHEET_CSV_URL = 'https://tinyurl.com/voter-help-center';
         
-        let allSchools = [];
-        let filteredSchools = [];
+        let allData = [];
+        let filteredData = [];
 
         // Fetch and parse CSV data
         async function loadData() {
@@ -277,18 +293,18 @@
                 
                 // Assuming first row is headers
                 const headers = rows[0];
-                allSchools = rows.slice(1)
+                allData = rows.slice(1)
                     .filter(row => row.some(cell => cell.trim() !== ''))
                     .map(row => {
-                        const school = {};
+                        const entry = {};
                         headers.forEach((header, index) => {
-                            school[header.toLowerCase().trim()] = row[index] || '';
+                            entry[header.toLowerCase().trim()] = row[index] || '';
                         });
-                        return school;
+                        return entry;
                     });
                 
                 populateFilters();
-                filteredSchools = [...allSchools];
+                filteredData = [...allData];
                 displayResults();
                 
             } catch (error) {
@@ -309,11 +325,13 @@
 
         // Populate filter dropdowns
         function populateFilters() {
-            const upazilas = [...new Set(allSchools.map(s => s.upazila || s.district).filter(Boolean))].sort();
-            const unions = [...new Set(allSchools.map(s => s.union).filter(Boolean))].sort();
+            const upazilas = [...new Set(allData.map(d => d.upazila).filter(Boolean))].sort();
+            const unions = [...new Set(allData.map(d => d.union).filter(Boolean))].sort();
+            const wards = [...new Set(allData.map(d => d['ward number']).filter(Boolean))].sort();
             
             const upazilaSelect = document.getElementById('upazilaFilter');
             const unionSelect = document.getElementById('unionFilter');
+            const wardSelect = document.getElementById('wardFilter');
             
             upazilas.forEach(upazila => {
                 const option = document.createElement('option');
@@ -328,26 +346,49 @@
                 option.textContent = union;
                 unionSelect.appendChild(option);
             });
+            
+            wards.forEach(ward => {
+                const option = document.createElement('option');
+                option.value = ward;
+                option.textContent = `Ward ${ward}`;
+                wardSelect.appendChild(option);
+            });
         }
 
         // Filter and search
         function performSearch() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedUpazila = document.getElementById('upazilaFilter').value;
             const selectedUnion = document.getElementById('unionFilter').value;
+            const selectedWard = document.getElementById('wardFilter').value;
+            const centerSearchTerm = document.getElementById('centerSearch').value.toLowerCase();
+            const personSearchTerm = document.getElementById('personSearch').value.toLowerCase();
             
-            filteredSchools = allSchools.filter(school => {
-                const matchesSearch = !searchTerm || Object.values(school).some(value => 
-                    value.toLowerCase().includes(searchTerm)
-                );
-                
+            filteredData = allData.filter(entry => {
+                // Filter by dropdowns
                 const matchesUpazila = !selectedUpazila || 
-                    (school.upazila || school.district || '').toLowerCase() === selectedUpazila.toLowerCase();
+                    entry.upazila.toLowerCase() === selectedUpazila.toLowerCase();
                 
                 const matchesUnion = !selectedUnion || 
-                    (school.union || '').toLowerCase() === selectedUnion.toLowerCase();
+                    entry.union.toLowerCase() === selectedUnion.toLowerCase();
                 
-                return matchesSearch && matchesUpazila && matchesUnion;
+                const matchesWard = !selectedWard || 
+                    entry['ward number'] === selectedWard;
+                
+                // Filter by center name
+                const centerName = entry['center name'] || '';
+                const matchesCenter = !centerSearchTerm || 
+                    centerName.toLowerCase().includes(centerSearchTerm);
+                
+                // Filter by person name, role, or contact number
+                const personName = entry['person name'] || '';
+                const role = entry.role || '';
+                const contactNumber = entry['contact number'] || '';
+                const matchesPerson = !personSearchTerm || 
+                    personName.toLowerCase().includes(personSearchTerm) ||
+                    role.toLowerCase().includes(personSearchTerm) ||
+                    contactNumber.includes(personSearchTerm);
+                
+                return matchesUpazila && matchesUnion && matchesWard && matchesCenter && matchesPerson;
             });
             
             displayResults();
@@ -358,25 +399,30 @@
             const resultsDiv = document.getElementById('results');
             const countDiv = document.getElementById('resultCount');
             
-            countDiv.textContent = `Found ${filteredSchools.length} school${filteredSchools.length !== 1 ? 's' : ''}`;
+            countDiv.textContent = `Found ${filteredData.length} center${filteredData.length !== 1 ? 's' : ''}`;
             
-            if (filteredSchools.length === 0) {
-                resultsDiv.innerHTML = '<div class="no-results"><p>No schools found. Try different search terms.</p></div>';
+            if (filteredData.length === 0) {
+                resultsDiv.innerHTML = '<div class="no-results"><p>No centers found. Try different search terms.</p></div>';
                 return;
             }
             
-            resultsDiv.innerHTML = filteredSchools.map(school => {
-                const schoolName = school.school || school['school name'] || 'N/A';
-                const upazila = school.upazila || school.district || 'N/A';
-                const union = school.union || 'N/A';
-                const contact = school.contact || school['contact person'] || 'N/A';
-                const mobile = school.mobile || school.phone || school['mobile number'] || 'N/A';
-                const hotline = school.hotline || school['hotline number'] || '';
+            resultsDiv.innerHTML = filteredData.map(entry => {
+                const centerName = entry['center name'] || 'N/A';
+                const upazila = entry.upazila || 'N/A';
+                const union = entry.union || 'N/A';
+                const ward = entry['ward number'] || 'N/A';
+                const personName = entry['person name'] || 'N/A';
+                const role = entry.role || 'N/A';
+                const contactNumber = entry['contact number'] || 'N/A';
+                const hotline1 = entry['hotline 1'] || '';
+                const hotline2 = entry['hotline 2'] || '';
+                const hotline3 = entry['hotline 3'] || '';
+                const notes = entry.notes || '';
                 
                 return `
-                    <div class="school-card">
-                        <div class="school-name">${schoolName}</div>
-                        <div class="school-info">
+                    <div class="center-card">
+                        <div class="center-name">${centerName}</div>
+                        <div class="center-info">
                             <div class="info-row">
                                 <span class="info-label">Upazila:</span>
                                 <span class="info-value">${upazila}</span>
@@ -386,19 +432,35 @@
                                 <span class="info-value">${union}</span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">Contact Person:</span>
-                                <span class="info-value">${contact}</span>
+                                <span class="info-label">Ward Number:</span>
+                                <span class="info-value">${ward}</span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">Mobile:</span>
+                                <span class="info-label">Contact Person:</span>
+                                <span class="info-value">${personName}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Role:</span>
+                                <span class="info-value">${role}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Contact Number:</span>
                                 <span class="info-value">
-                                    <a href="tel:${mobile}" class="phone-link">${mobile}</a>
+                                    <a href="tel:${contactNumber}" class="phone-link">${contactNumber}</a>
                                 </span>
                             </div>
-                            ${hotline ? `
+                            ${(hotline1 || hotline2 || hotline3) ? `
                                 <div class="hotline-section">
-                                    <div class="hotline-title">📞 Hotline Number</div>
-                                    <a href="tel:${hotline}" class="phone-link">${hotline}</a>
+                                    <div class="hotline-title">📞 Hotline Numbers</div>
+                                    ${hotline1 ? `<div class="hotline-item"><a href="tel:${hotline1}" class="phone-link">Hotline 1: ${hotline1}</a></div>` : ''}
+                                    ${hotline2 ? `<div class="hotline-item"><a href="tel:${hotline2}" class="phone-link">Hotline 2: ${hotline2}</a></div>` : ''}
+                                    ${hotline3 ? `<div class="hotline-item"><a href="tel:${hotline3}" class="phone-link">Hotline 3: ${hotline3}</a></div>` : ''}
+                                </div>
+                            ` : ''}
+                            ${notes ? `
+                                <div class="info-row" style="margin-top: 10px;">
+                                    <span class="info-label">Notes:</span>
+                                    <span class="info-value" style="font-style: italic; color: #666;">${notes}</span>
                                 </div>
                             ` : ''}
                         </div>
@@ -408,9 +470,11 @@
         }
 
         // Event listeners
-        document.getElementById('searchInput').addEventListener('input', performSearch);
         document.getElementById('upazilaFilter').addEventListener('change', performSearch);
         document.getElementById('unionFilter').addEventListener('change', performSearch);
+        document.getElementById('wardFilter').addEventListener('change', performSearch);
+        document.getElementById('centerSearch').addEventListener('input', performSearch);
+        document.getElementById('personSearch').addEventListener('input', performSearch);
 
         // Load data on page load
         loadData();
