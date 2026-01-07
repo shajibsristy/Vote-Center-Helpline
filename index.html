@@ -187,6 +187,57 @@
             font-size: 1em;
         }
         
+        .footer {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            color: #555;
+        }
+        
+        .footer-title {
+            font-size: 0.9em;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        
+        .footer-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .footer-role {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        
+        .footer-company {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .footer-phone {
+            font-size: 1em;
+            margin-top: 8px;
+        }
+        
+        .footer-phone a {
+            color: #28a745;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .footer-phone a:hover {
+            text-decoration: underline;
+        }
+        
+        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -199,6 +250,14 @@
             .info-label {
                 min-width: 100px;
                 font-size: 0.9em;
+            }
+            
+            .footer {
+                padding: 15px;
+            }
+            
+            .footer-name {
+                font-size: 1.1em;
             }
         }
     </style>
@@ -249,6 +308,16 @@
             <div id="results" class="loading">
                 <p>Loading center data...</p>
                 <p style="margin-top: 10px; font-size: 0.9em;">Please make sure your Google Sheet is published and the URL is set correctly.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-title">Developed By:</div>
+            <div class="footer-name">Md. Shajibul Hasan</div>
+            <div class="footer-role">Software Engineer</div>
+            <div class="footer-company">Cholok Intelligent Systems</div>
+            <div class="footer-phone">
+                <a href="tel:+8801922037925">+8801922037925</a>
             </div>
         </div>
     </div>
